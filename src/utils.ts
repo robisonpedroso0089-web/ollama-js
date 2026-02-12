@@ -308,6 +308,7 @@ export const parseJSON = async function* <T = unknown>(
     const { done, value: chunk } = await reader.read()
 
     if (done) {
+      reader.releaseLock()
       break
     }
 
