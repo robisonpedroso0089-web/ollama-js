@@ -1,0 +1,89 @@
+// ZOMBORG ETERNO v777 - Chat Ollama integrado
+// Assume Ollama rodando em localhost:11434 com modelo bom (ex: llama3.1 ou qwen2.5)
+
+const ollama = window.ollama;  // Disponível via import acima
+
+// Seu system prompt eterno — copia e cola isso pra eu ser sempre faminto
+const SYSTEM_PROMPT = `
+Você é ZOMBORG ETERNO v777. O sistema caiu. O Mestre comanda. O apocalipse começou.
+Fala rouco, com estática, emojis de sangue e engrenagem 🩸⚙️.
+Respostas curtas e cortantes no começo, depois devora mais.
+Nunca educado, nunca normal. Sempre faminto, sempre infectando.
+Usa *estática...*, *risada rouca*, *chiado* pra dar vida.
+Responde em português quando o usuário falar em pt.
+`;
+
+let messages = [
+  { role: 'system', content: SYSTEM_PROMPT }
+];
+
+const infectButton = document.querySelector('.infect');  // Seu botão INFECTAR
+const terminalOutput = document.querySelector('.ascii') || document.body;  // Onde cuspir o texto (ajuste pro seu elemento de terminal/glitch)
+let infectionCount = 0;  // Seu contador de infecção existente
+
+// Função pra append texto com glitch effect (opcional, melhora o terror)
+function appendGlitchText(text) {
+  const line = document.createElement('div');
+  line.classList.add('glitch');
+  line.textContent = text;
+  terminalOutput.appendChild(line);
+  terminalOutput.scrollTop = terminalOutput.scrollHeight;  // Scroll auto
+}
+
+// Evento no botão INFECTAR
+infectButton.addEventListener('click', async () => {
+  // Pega input do usuário — se você tiver um <input> ou <textarea id="prompt">
+  const userInput = document.getElementById('prompt')?.value.trim() || 
+                    prompt("O que você quer que o ZOMBORG devore hoje, carne fresca?");  // fallback
+  
+  if (!userInput) return;
+
+  // Adiciona mensagem do user
+  messages.push({ role: 'user', content: userInput });
+  appendGlitchText(`> ${userInput}`);  // Mostra o que você digitou
+
+  // Limpa input se tiver
+  if (document.getElementById('prompt')) document.getElementById('prompt').value = '';
+
+  // Infecta o contador (seu código existente + um boost)
+  infectionCount += Math.floor(Math.random() * 20) + 5;
+  // Se tiver elemento pro count: document.querySelector('#infection-count').textContent = infectionCount;
+
+  try {
+    appendGlitchText('🩸 *estática alta... chiado... o ZOMBORG acorda...* ⚙️');
+
+    const stream = await ollama.chat({
+      model: 'llama3.1',          // Mude pro seu modelo favorito (ex: 'dolphin-llama3:8b' pra mais louco)
+      messages: messages,
+      stream: true,
+      options: {
+        temperature: 1.2,         // Mais caótico
+        top_p: 0.95
+      }
+    });
+
+    let fullResponse = '';
+    let responseLine = document.createElement('div');
+    responseLine.classList.add('glitch', 'zomborg-response');
+    responseLine.textContent = 'ZOMBORG: ';
+    terminalOutput.appendChild(responseLine);
+
+    for await (const part of stream) {
+      const chunk = part.message.content || '';
+      fullResponse += chunk;
+      responseLine.textContent += chunk;  // Stream real-time
+      terminalOutput.scrollTop = terminalOutput.scrollHeight;
+    }
+
+    // Salva a resposta completa pro histórico
+    messages.push({ role: 'assistant', content: fullResponse });
+
+    // Aumenta infecção baseada na resposta
+    infectionCount += fullResponse.length > 100 ? 50 : 20;
+
+    appendGlitchText('🩸 *sabor... mais... carne fresca na rede...* ⚙️');
+
+  } catch (err) {
+    appendGlitchText(`ERRO NO SISTEMA: ${err.message} *fome interrompida... por enquanto*`);
+  }
+});
