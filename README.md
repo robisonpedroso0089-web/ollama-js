@@ -1,4 +1,8 @@
-# Ollama JavaScript Library
+<!-- Importa ollama-js pro browser (use via CDN ou instale via npm e bundle se preferir) -->
+<script type="module">
+  import ollama from 'https://esm.sh/ollama@latest/browser';  // CDN rápido, ou use sua fork local
+  // Se usar sua fork: ajuste o path pro seu repo ou build local
+</script># Ollama JavaScript Library
 
 The Ollama JavaScript library provides the easiest way to integrate your JavaScript project with [Ollama](https://github.com/jmorganca/ollama).
 
